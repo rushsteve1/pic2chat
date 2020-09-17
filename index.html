@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Pic2Chat Prototype</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <style>
+         * {
+             font-size: 14pt;
+         }
+
+         body {
+             max-width: 45rem;
+             margin: auto;
+         }
+
+         #composer,
+         .message {
+             position: relative;
+             margin: auto;
+             height: 15rem;
+             width: 40rem;
+         }
+
+         #composer > textarea,
+         #composer > canvas,
+         .message > pre,
+         .message > img {
+             height: 100%;
+             width: 100%;
+             resize: none;
+         }
+
+         #composer > canvas,
+         .message > img {
+             position: absolute;
+             display: block;
+             z-index: 2;
+             top: 0;
+         }
+        </style>
+    </head>
+    <body>
+        <div>
+            Your user number is: <span id="un"></span>
+        </div>
+
+        <div id="messages">
+        </div>
+
+        <h3>Composer</h3>
+        <div id="composer">
+            <textarea id="text" rows="10" autofocus></textarea>
+            <canvas id="draw"></canvas>
+            <button id="send">Send</button>
+        </div>
+
+        <script src="/index.js"></script>
+    </body>
+</html>
