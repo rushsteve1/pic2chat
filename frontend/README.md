@@ -1,1 +1,0 @@
-# Pic2Chat Frontend
