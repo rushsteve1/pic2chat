@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import Lobby from './Lobby';
+import Room from "./Room";
 
 const dbname = (__DEV__) ? 'test' : 'prod';
 // const conn = r.connect({ host: 'rushsteve1.us', port: 32769, db: dbname });
@@ -17,7 +18,7 @@ export default function App() {
       <ConnectionContext.Provider >
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Lobby">
-            <Stack.Screen name="Lobby" component={Lobby}/>
+            <Stack.Screen name="Room" component={Room}/>
           </Stack.Navigator>
         </NavigationContainer>
         <StatusBar style="auto"/>

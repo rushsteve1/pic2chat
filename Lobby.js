@@ -35,6 +35,7 @@ export default class Lobby extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        <Text style = {{textAlign: "center",fontSize:20}}>Pic2Chat</Text>
         <Text style={styles.header}>Chats near you</Text>
         <View style={styles.rooms}>
           {this.state.rooms.map((room) => (
