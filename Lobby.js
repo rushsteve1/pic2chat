@@ -17,9 +17,9 @@ export default class Lobby extends React.Component {
     friends: [
       { key: 1, name: "Rory", lastonline: 4, online: true },
       { key: 2, name: "Steven", lastonline: 5, online: false },
-      { key: 3, name: "Saketh", lastonline: 13, online: false  },
-      { key: 4, name: "Evan", lastonline: 5, online: false  },
-      { key: 5, name: "Vedant", lastonline: 5, online: false  },
+      { key: 3, name: "Saketh", lastonline: 13, online: false },
+      { key: 4, name: "Evan", lastonline: 5, online: false },
+      { key: 5, name: "Vedant", lastonline: 5, online: false },
     ],
   };
 
@@ -38,7 +38,7 @@ export default class Lobby extends React.Component {
         <Text style={styles.header}>Chats near you</Text>
         <View style={styles.rooms}>
           {this.state.rooms.map((room) => (
-            <TouchableHighlight onPress={this.roomPress.bind(this, room.id)}>
+            <TouchableHighlight underlayColor = "#7C4DFF" onPress={this.roomPress.bind(this, room.id)}>
               <View style={styles.room}>
                 <View style={styles.roomInfo}>
                   <Text style={styles.roomName}>{room.name}</Text>
@@ -63,15 +63,17 @@ export default class Lobby extends React.Component {
           ))}
         </View>
         <Text style={styles.header}>Chats</Text>
-        <View style={styles.friends}>
+        <View >
           {this.state.friends.map((friend) => (
-            <View style={styles.friend}>
-              <Text style={styles.friendName}>{friend.name}</Text>
-              <View style ={{flexDirection:"row"}}>
-                <Text style={styles.lastonline}>{friend.lastonline}hr</Text>
-                {friend.online && <View style = {styles.circle}></View>}
+            <TouchableHighlight style={styles.friends} underlayColor = "#d8c7ff" onPress={this.roomPress.bind(this, friend.key)}>
+              <View style={styles.friend}>
+                <Text style={styles.friendName}>{friend.name}</Text>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.lastonline}>{friend.lastonline}hr</Text>
+                  {friend.online && <View style={styles.circle}></View>}
+                </View>
               </View>
-            </View>
+            </TouchableHighlight>
           ))}
         </View>
       </View>
@@ -131,12 +133,13 @@ const styles = StyleSheet.create({
   friend: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20
+    marginBottom: 10,
+    marginTop: 10,
   },
-  lastonline:{
+  lastonline: {
     opacity: 0.5,
   },
-  circle:{
+  circle: {
     width: 15,
     height: 15,
     marginLeft: 5,
