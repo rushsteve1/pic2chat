@@ -11,10 +11,16 @@ import {
 export default class Lobby extends React.Component {
   state = {
     rooms: [
-      { id: 1, name: "Rory's room", occupants: 4, capacity: 10 },
-      { id: 2, name: "Steven's room", occupants: 5, capacity: 10 },
+      { key: 1, id: 1, name: "Rory's room", occupants: 4, capacity: 10 },
+      { key: 2, id: 2, name: "Steven's room", occupants: 5, capacity: 10 },
     ],
-    friends: [],
+    friends: [
+      { key: 1, name: "Rory", lastonline: 4, online: true },
+      { key: 2, name: "Steven", lastonline: 5, online: false },
+      { key: 3, name: "Saketh", lastonline: 13, online: false  },
+      { key: 4, name: "Evan", lastonline: 5, online: false  },
+      { key: 5, name: "Vedant", lastonline: 5, online: false  },
+    ],
   };
 
   constructor() {
@@ -24,16 +30,15 @@ export default class Lobby extends React.Component {
 
   roomPress = (roomId) => {
     console.log(roomId + " was pressed.");
-    alert("you pressed the button");
   };
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style={{ marginBottom: 10 }}>Chats near you</Text>
-        <View style = {styles.rooms}>
+        <Text style={styles.header}>Chats near you</Text>
+        <View style={styles.rooms}>
           {this.state.rooms.map((room) => (
-            <TouchableHighlight onPress={this.roomPress.bind(room.id)}>
+            <TouchableHighlight onPress={this.roomPress.bind(this, room.id)}>
               <View style={styles.room}>
                 <View style={styles.roomInfo}>
                   <Text style={styles.roomName}>{room.name}</Text>
@@ -57,6 +62,18 @@ export default class Lobby extends React.Component {
             </TouchableHighlight>
           ))}
         </View>
+        <Text style={styles.header}>Chats</Text>
+        <View style={styles.friends}>
+          {this.state.friends.map((friend) => (
+            <View style={styles.friend}>
+              <Text style={styles.friendName}>{friend.name}</Text>
+              <View style ={{flexDirection:"row"}}>
+                <Text style={styles.lastonline}>{friend.lastonline}hr</Text>
+                {friend.online && <View style = {styles.circle}></View>}
+              </View>
+            </View>
+          ))}
+        </View>
       </View>
     );
   }
@@ -70,10 +87,14 @@ const styles = StyleSheet.create({
     paddingRight: 15,
     paddingTop: 5,
   },
-  rooms: {
+  header: {
+    fontSize: 15,
+    fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 10,
   },
   room: {
-    height: 200,
+    height: 70,
     marginBottom: 10,
     backgroundColor: "#C4C4C4",
     elevation: 5,
@@ -102,5 +123,25 @@ const styles = StyleSheet.create({
     textAlign: "right",
     paddingRight: 20,
     fontSize: 15,
+  },
+  friends: {
+    paddingLeft: 20,
+    paddingRight: 25,
+  },
+  friend: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20
+  },
+  lastonline:{
+    opacity: 0.5,
+  },
+  circle:{
+    width: 15,
+    height: 15,
+    marginLeft: 5,
+    marginTop: 2.5,
+    backgroundColor: "#7C4DFF",
+    borderRadius: 100,
   },
 });
