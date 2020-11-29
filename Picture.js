@@ -3,8 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableHighlight,
-  Image,
 } from "react-native";
 
 export default class Picture extends React.Component {

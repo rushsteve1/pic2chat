@@ -11,7 +11,6 @@ import {
 export default class Message extends React.Component {
   constructor() {
     super();
-    // TODO get the rooms and friends lists
   }
   render() {
     return (

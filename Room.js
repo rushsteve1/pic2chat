@@ -3,8 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableHighlight,
-  Image,
 } from "react-native";
 
 import Message from "./Message.js";
@@ -39,7 +37,6 @@ export default class Room extends React.Component {
 
   constructor() {
     super();
-    // TODO get the rooms and friends lists
   }
 
   render() {
