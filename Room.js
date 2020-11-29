@@ -6,7 +6,9 @@ import {
   TouchableHighlight,
   Image,
 } from "react-native";
-// import r from 'rethinkdb';
+
+import Message from "./Message.js";
+import Picture from "./Picture.js";
 
 export default class Room extends React.Component {
   state = {
@@ -28,10 +30,10 @@ export default class Room extends React.Component {
         text: "Yo.",
       },
       {
-          sender:"Evan",
-          deviceId: "Evan's phone",
-          type:"image",
-      }
+        sender:"Rory",
+        deviceId:"Rory's phone",
+        type:"image",
+      },
     ],
   };
 
@@ -39,10 +41,6 @@ export default class Room extends React.Component {
     super();
     // TODO get the rooms and friends lists
   }
-
-  roomPress = (roomId) => {
-    console.log(roomId + " was pressed.");
-  };
 
   render() {
     return (
@@ -52,25 +50,16 @@ export default class Room extends React.Component {
         </Text>
 
         <View>
-          {this.state.messages.map((message) => (
-            <View>
-              {message.deviceId != this.state.deviceId ? (
-                <View style={styles.messageWrapper}>
-                  <View>
-                    <Text>{message.sender}</Text>
-                    <Text style={styles.message}>{message.text}</Text>
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.myMessageWrapper}>
-                  <View>
-                    <Text style = {{color:"#7C4DFF",fontSize: 12,textAlign:"right"}}>you</Text>
-                    <Text style={styles.myMessage}>{message.text}</Text>
-                  </View>
-                </View>
-              )}
-            </View>
-          ))}
+          {this.state.messages.map((message) =>
+            message.type == "text" ? (
+              <Message
+                deviceId={this.state.deviceId}
+                message={message}
+              />
+            ) : (
+              <Picture deviceId = {this.state.deviceId} message = {message}/>
+            )
+          )}
         </View>
       </View>
     );
@@ -90,35 +79,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 10,
     marginBottom: 10,
-  },
-  messageWrapper: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-  },
-  message: {
-    backgroundColor: "#F2F2F2",
-    paddingRight: 10,
-    paddingLeft: 10,
-    paddingTop:2,
-    paddingBottom:5,
-    marginTop: 5,
-    borderRadius: 10,
-    borderRadius: 10,
-  },
-  myMessageWrapper: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-  },
-  myMessage: {
-    backgroundColor: "#7C4DFF",
-    color: "#fff",
-    paddingRight: 10,
-    paddingLeft: 10,
-    paddingTop:2,
-    paddingBottom:5,
-    marginTop: 5,
-    borderRadius: 10,
   },
 });
