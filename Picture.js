@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
 } from "react-native";
 
 export default class Picture extends React.Component {
@@ -13,12 +14,14 @@ export default class Picture extends React.Component {
     return (
       <View style={styles.container}>
         {this.props.message.deviceId != this.props.deviceId ? (
-          <View style={styles.picture}>
-            <Text style={styles.sender}>{this.props.message.sender}</Text>
+          <View style={styles.sentPicture}>
+            <Text style={styles.senderTag}>{this.props.message.sender}</Text>
+            <Image style = {styles.image} source = {{uri: `data:image/png;base64,${this.props.uri}`,}}></Image>
           </View>
         ) : (
           <View style={styles.myPicture}>
-            <Text style={styles.me}>you</Text>
+            <Text style={styles.meTag}>you</Text>
+            <Image style = {styles.image} source = {{uri: `data:image/png;base64,${this.props.uri}`,}}></Image>
           </View>
         )}
       </View>
@@ -28,10 +31,9 @@ export default class Picture extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 5,
     marginBottom: 5,
+    marginTop: 5,
   },
   header: {
     fontSize: 15,
@@ -39,38 +41,47 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
-  picture: {
-    height: 150,
-    borderWidth: 1,
-    borderRadius: 5,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-  },
-  sender: {
+  senderTag: {
+    position: "absolute",
     backgroundColor: "#C4C4C4",
     paddingLeft: 10,
     paddingRight: 10,
     height: 20,
     borderTopLeftRadius: 5,
     borderBottomRightRadius: 5,
+    zIndex: 1,
   },
-  myPicture: {
-    height: 150,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: "#7C4DFF",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-  },
-  me: {
+  meTag: {
+    position: "absolute",
     backgroundColor: "#d8c7ff",
     color: "#7C4DFF",
+    right: 0,
+    marginLeft: "auto",
     paddingLeft: 10,
     paddingRight: 10,
     height: 20,
     borderTopRightRadius: 5,
     borderBottomLeftRadius: 5,
+    zIndex: 1,
   },
+  sentPicture: {
+    height: 150,
+    width: 300,
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  myPicture: {
+    right: 10,
+    marginLeft: "auto",
+    height: 150,
+    width: 300,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: "#7C4DFF",
+  },
+  image : {
+    height: 148,
+    width: 298,
+    borderRadius: 5,
+  }
 });

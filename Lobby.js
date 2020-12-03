@@ -11,15 +11,15 @@ import {
 export default class Lobby extends React.Component {
   state = {
     rooms: [
-      { key: 1, id: 1, name: "Rory's room", occupants: 4, capacity: 10 },
-      { key: 2, id: 2, name: "Steven's room", occupants: 5, capacity: 10 },
+      { id: 1, name: "Rory's room", occupants: 4, capacity: 10 },
+      { id: 2, name: "Steven's room", occupants: 5, capacity: 10 },
     ],
     friends: [
-      { key: 1, name: "Rory", lastonline: 4, online: true },
-      { key: 2, name: "Steven", lastonline: 5, online: false },
-      { key: 3, name: "Saketh", lastonline: 13, online: false },
-      { key: 4, name: "Evan", lastonline: 5, online: false },
-      { key: 5, name: "Vedant", lastonline: 5, online: false },
+      { name: "Rory", lastonline: 4, online: true },
+      { name: "Steven", lastonline: 5, online: false },
+      { name: "Saketh", lastonline: 13, online: false },
+      { name: "Evan", lastonline: 5, online: false },
+      { name: "Vedant", lastonline: 5, online: false },
     ],
   };
 
@@ -44,6 +44,7 @@ export default class Lobby extends React.Component {
                 <View style={styles.roomInfo}>
                   <Text style={styles.roomName}>{room.name}</Text>
                   <View
+                    key = {room.id}
                     style={{ flexDirection: "row", justifyContent: "center" }}
                   >
                     <Image
