@@ -69,7 +69,7 @@ export default class Lobby extends React.Component {
             </TouchableHighlight>
           ))}
         </ScrollView>
-        <Text style={styles.header}>Chats</Text>
+        <Text style={styles.header}>Friends</Text>
         <ScrollView>
           {this.state.friends.map((friend) => (
             <TouchableHighlight key={friend.name} style={styles.friends} underlayColor="#d8c7ff" onPress={this.roomPress.bind(this, friend.key)}>

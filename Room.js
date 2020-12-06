@@ -95,7 +95,7 @@ export default class Room extends React.Component {
   }
 
   async componentDidMount() {
-    console.log(Constant.installationId);
+    console.log(Constants.installationId);
 
     var { data } = await supabase.from('rooms').select('name').eq('id', this.props.route.params.id).single();
     this.setState({ name: data.name });
