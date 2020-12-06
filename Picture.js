@@ -13,7 +13,7 @@ export default class Picture extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        {this.props.message.deviceId != this.props.deviceId ? (
+        {this.props.message.sent_by != this.props.id ? (
           <View style={styles.sentPicture}>
             <Text style={styles.senderTag}>{this.props.message.sender}</Text>
             <Image style = {styles.image} source = {{uri: `data:image/png;base64,${this.props.uri}`,}}></Image>

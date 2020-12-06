@@ -6,16 +6,12 @@ import {
   TouchableHighlight,
   Image,
 } from "react-native";
-// import r from 'rethinkdb';
 
 export default class Message extends React.Component {
-  constructor() {
-    super();
-  }
   render() {
     return (
       <View>
-        {this.props.message.deviceId != this.props.deviceId ? (
+        {this.props.message.sent_by != this.props.id ? (
           <View style={styles.messageWrapper}>
             <View>
               <Text>{this.props.message.sender}</Text>

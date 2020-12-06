@@ -17,6 +17,9 @@ import ExpoPixi from "expo-pixi";
 // custom components:
 import Message from "./Message.js";
 import Picture from "./Picture.js";
+import { supabase } from "./App.js";
+import Constants from 'expo-constants';
+
 // values for sketch component:
 const color = 0x0000ff;
 const width = 5;
@@ -29,54 +32,16 @@ function sleep(ms) {
 export default class Room extends React.Component {
   state = {
     // room info:
-    title: "Rory's room",
-    occupants: 5,
-    capacity: 10,
-    username: "Rory",
-    deviceId: "Rory's phone",
-    // input types/data:
+    name: "Rory's room",
+
+    // input types/data
     type: "text",
     uri: "",
     text: "",
     sketchMounted: true,
-    // array of messages:
-    messages: [
-      {
-        id: 0,
-        sender: "Steven",
-        deviceId: "Steven's phone",
-        type: "text",
-        text: "Hey guys.",
-      },
-      {
-        id: 1,
-        sender: "Rory",
-        deviceId: "Rory's phone",
-        type: "text",
-        text: "Yo.",
-      },
-      {
-        id: 2,
-        sender: "Evan",
-        deviceId: "Evan's phone",
-        type: "image",
-        uri: "",
-      },
-      {
-        id: 3,
-        sender: "Vedant",
-        deviceId: "Vedant's phone",
-        type: "text",
-        text: "nice cat!"
-      },
-      {
-        id: 4,
-        sender: "Saketh",
-        deviceId: "Saketh's phone",
-        type: "text",
-        text: "^^^"
-      }
-    ],
+
+    // array of messages
+    messages: [],
   };
 
   onChangeImage = async ({ width, height }) => {
@@ -90,102 +55,114 @@ export default class Room extends React.Component {
     };
     /// Using 'Expo.takeSnapShotAsync', and our view 'this.sketch' we can get a uri of the image
     const uri = await takeSnapshotAsync(this.sketch, options);
-    this.setState({ uri: uri });
-  };
+    this.setState({ uri });
+  }
 
   // When text is changed, update state:
   onChangeText = (text) => {
     this.setState({ text: text });
-  };
+  }
 
   // n submission of input, update messages list:
-  onSubmit = () => {
-    // If submitting sketch:
-    if (this.state.type == "sketch") {
-      // Create new image object:
-      let newImage = {
-        // get random id:
-        id: nextId(),
-        sender: this.state.username,
-        deviceId: this.state.deviceId,
-        type: "image",
-        uri: this.state.uri,
-      };
-      let updatedMessages = this.state.messages;
-      updatedMessages.push(newImage);
-      // TODO: will need to update the server with this message:
-      this.setState({ messages: updatedMessages });
+  onSubmit = async () => {
+    let newMsg = {
+      room_id: this.props.route.params.id,
+      sent_by: Constants.installationId,
+      type: this.state.type,
+    };
+
+    if (this.state.type === 'sketch') {
+      newMsg.image_uri = this.state.uri;
     } else {
-      // Send text message if not blank:
-      if (this.state.text != "") {
-        // Create new text object:
-        let newText = {
-          id: nextId(),
-          sender: this.state.username,
-          deviceId: this.state.deviceId,
-          type: "text",
-          text: this.state.text,
-        };
-        // TODO: will need to update the server with this message:
-        let updatedMessages = this.state.messages;
-        updatedMessages.push(newText);
-        // Reset text state
-        this.setState({ messages: updatedMessages });
-        this.setState({ text: "" });
-      }
-    }    
-  };
+      newMsg.text = this.state.text;
+    }
+
+    await supabase
+      .from('messages')
+      .insert(newMsg);
+
+    this.setState({ text: "", uri: "" });
+  }
 
   onErase = () => {
     this.setState({type:"text"});
     sleep(1).then(() => { this.setState({type:"sketch"}); });
-    ;
   }
 
   // Switch from text to sketch or vice versa:
   switch = () => {
-    this.setState({ type: this.state.type == "text" ? "sketch" : "text" });
-  };
+    this.setState({ type: (this.state.type == "text") ? "sketch" : "text" });
+  }
 
-  constructor() {
-    super();
+  async componentDidMount() {
+    console.log(Constant.installationId);
+
+    var { data } = await supabase.from('rooms').select('name').eq('id', this.props.route.params.id).single();
+    this.setState({ name: data.name });
+
+    var { data } = await supabase.from('messages').select().eq('room_id', this.props.route.params.id).order('time');
+    this.setState({ messages: data });
+
+    supabase
+      .from('messages:room_id=eq.' + this.props.route.params.id)
+      .on('INSERT', (evt) => this.setState({ messages: [...this.state.messages, evt.new]}))
+      .subscribe()
   }
 
   render() {
     return (
       <View style={styles.container}>
         <Text style={{ textAlign: "center", fontSize: 20 }}>
-          {this.state.title}
+          {this.state.name}
         </Text>
-        <View
-          style={
-            this.state.type == "text" ? styles.messages : styles.messagesActive
-          }
-        >
+
+        <View style={styles.messages} >
           {/* Scroll view of messages: */}
           <ScrollView>
-            {/* TODO: get these messages from database: */}
             {this.state.messages.map((message) =>
               message.type == "text" ? (
                 <Message
                   key={message.id}
-                  deviceId={this.state.deviceId}
+                  id={Constants.installationId}
                   message={message}
                 />
               ) : (
                 <Picture
                   key={message.id}
-                  deviceId={this.state.deviceId}
+                  id={Constants.installationId}
                   message={message}
-                  uri={message.uri}
+                  uri={message.image_uri}
                 />
               )
             )}
           </ScrollView>
         </View>
+
         {/* Input section: */}
-        <View style={styles.input}>
+        <View style={[styles.input, {maxHeight: (this.state.type === "text") ? 50 : 180}]}>
           {/* Sketch component: */}
+          {/* Switch contexts (text vs sketch): */}
+          <TouchableHighlight style={styles.switch} onPress={this.switch}
+            underlayColor="#fff">
+            {this.state.type == "sketch" ? (
+              <Text>Aa</Text>
+            ) : (
+              <Image style = {styles.switch} source={{ uri: "https://cdn.iconscout.com/icon/free/png-256/pen-1994819-1699863.png" }}></Image>
+            )}
+          </TouchableHighlight>
+
+          {/* Text input: */}
+          {this.state.type == "text" && (
+            <TextInput
+              style={styles.textInput}
+              editable
+              maxLength={40}
+              placeholder="Text Message"
+              onChangeText={(text) => this.onChangeText(text)}
+              value={this.state.text}
+            />
+          )}
+
           {this.state.type == "sketch" && (
             <View
               style={{
@@ -204,58 +181,36 @@ export default class Room extends React.Component {
                 />
             </View>
           )}
-          {/* Display text input: */}
-          <View style={styles.inputWrapper}>
-            {/* Switch contexts (text vs sketch): */}
-            <TouchableHighlight style={styles.switch} onPress={this.switch} 
-              underlayColor="#fff">
-              {this.state.type == "sketch" ? (
-                <Text>Aa</Text>
-              ) : (
-                <Image style = {styles.switch} source={{ uri: "https://cdn.iconscout.com/icon/free/png-256/pen-1994819-1699863.png" }}></Image>
-              )}
-            </TouchableHighlight>
-            {/* Text input: */}
-            {this.state.type == "text" && (
-              <TextInput
-                style={styles.textInput}
-                editable
-                maxLength={40}
-                placeholder="Text Message"
-                onChangeText={(text) => this.onChangeText(text)}
-                value={this.state.text}
-              />
-            )}
-            {/* erase button: */}
-            {this.state.type == "sketch" && (
-              <TouchableHighlight
-              onPress= {this.onErase}
-              underlayColor="#fff"
-            >
-              <Image
-                style={styles.erase}
-                source={{
-                  uri:
-                    "https://cdn2.iconfinder.com/data/icons/business-1-58/48/69-512.png",
-                }}
-              ></Image>
-            </TouchableHighlight>
-            )}
-            {/* Send button: */}
+
+          {/* erase button: */}
+          {this.state.type == "sketch" && (
             <TouchableHighlight
+            onPress= {this.onErase}
+            underlayColor="#fff"
+          >
+            <Image
+              style={styles.erase}
+              source={{
+                uri:
+                  "https://cdn2.iconfinder.com/data/icons/business-1-58/48/69-512.png",
+              }}
+            ></Image>
+          </TouchableHighlight>
+          )}
+          {/* Send button: */}
+          <TouchableHighlight
+            style={styles.submit}
+            onPress={this.onSubmit}
+            underlayColor="#fff"
+          >
+            <Image
               style={styles.submit}
-              onPress={this.onSubmit}
-              underlayColor="#fff"
-            >
-              <Image
-                style={styles.submit}
-                source={{
-                  uri:
-                    "https://cdn2.iconfinder.com/data/icons/dark-action-bar-2/96/send-512.png",
-                }}
-              ></Image>
-            </TouchableHighlight>
-          </View>
+              source={{
+                uri:
+                  "https://cdn2.iconfinder.com/data/icons/dark-action-bar-2/96/send-512.png",
+              }}
+            ></Image>
+          </TouchableHighlight>
         </View>
       </View>
     );
@@ -275,42 +230,30 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   messages: {
-    paddingLeft: 15,
-    paddingRight: 15,
-    marginBottom: 100,
-  },
-  messagesActive: {
-    paddingLeft: 15,
-    paddingRight: 15,
-    marginBottom: 250,
-  },
-  input: {
-    backgroundColor: "#F2F2F2",
-    padding: 10,
-    bottom: 0,
-    marginTop: "auto",
-    width: Dimensions.get("window").width,
+    paddingHorizontal: 15,
+    flexGrow: 1,
   },
   sketchInput: {
     height: 140,
     width: 300,
-    bottom: 0,
     backgroundColor: "#fff",
-    margin: "auto",
   },
   textInput: {
     backgroundColor: "#E5E5E5",
-    width: 250,
-    height: 20,
-    fontSize: 10,
+    flexGrow: 1,
+    fontSize: 14,
     padding: 3,
+    marginHorizontal: 10
   },
-  inputWrapper: {
-    display: "flex",
+  input: {
+    flex: 1,
+    padding: 10,
     flexDirection: "row",
+    marginTop: "auto",
+    backgroundColor: "#F2F2F2",
     justifyContent: "space-between",
+    alignItems: "center",
     width: Dimensions.get("window").width,
-    width: 340,
   },
   switch: {
     height: 20,

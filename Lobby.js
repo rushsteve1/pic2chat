@@ -7,42 +7,35 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-// import r from 'rethinkdb';
-
+import { supabase } from "./App.js";
 
 export default class Lobby extends React.Component {
   state = {
-    rooms: [
-      { id: 1, name: "Rory's room", occupants: 4, capacity: 10 },
-      { id: 2, name: "Steven's room", occupants: 3, capacity: 5 },
-      { id: 3, name: "Evan's room", occupants: 9, capacity: 10 },
-      { id: 4, name: "Saketh's room", occupants: 10, capacity: 20 },
-      { id: 5, name: "Vedant's room", occupants: 3, capacity: 6 },
-    ],
+    rooms: [],
     friends: [
-      { name: "Vedant", lastonline: 1, online: true },
-      { name: "Steven", lastonline: 7, online: true },
-      { name: "Saketh", lastonline: 8, online: true },
-      { name: "Evan", lastonline: 13, online: true },
-      { name: "Mike", lastonline: 14, online: false },
-      { name: "Will", lastonline: 15, online: false },
-      { name: "Dustin", lastonline: 16, online: false },
-      { name: "El", lastonline: 20, online: false },
-      { name: "David", lastonline: 21, online: false },
-      { name: "Joyce", lastonline: 24, online: false },
-      { name: "Steve", lastonline: 48, online: false },
+      { id: 1, name: "Vedant", lastonline: 1, online: true },
+      { id: 1, name: "Steven", lastonline: 7, online: true },
+      { id: 1, name: "Saketh", lastonline: 8, online: true },
+      { id: 1, name: "Evan", lastonline: 13, online: true },
+      { id: 1, name: "Mike", lastonline: 14, online: false },
+      { id: 1, name: "Will", lastonline: 15, online: false },
+      { id: 1, name: "Dustin", lastonline: 16, online: false },
+      { id: 1, name: "El", lastonline: 20, online: false },
+      { id: 1, name: "David", lastonline: 21, online: false },
+      { id: 1, name: "Joyce", lastonline: 24, online: false },
+      { id: 1, name: "Steve", lastonline: 48, online: false },
     ],
   };
-
-  constructor() {
-    super();
-    // TODO get the rooms and friends lists
-  }
 
   roomPress = (roomId) => {
     console.log(roomId + " was pressed.");
-    this.props.navigation.navigate('Room', {})
+    this.props.navigation.navigate('Room', {id: roomId})
   };
+
+  async componentDidMount() {
+    var { data } = await supabase.from('rooms').select();
+    this.setState({ rooms: data });
+  }
 
   render() {
     return (
@@ -51,7 +44,7 @@ export default class Lobby extends React.Component {
         <Text style={styles.header}>Chats near you</Text>
         <ScrollView style={styles.rooms}>
           {this.state.rooms.map((room) => (
-            <TouchableHighlight underlayColor = "#7C4DFF" key = {room.id} onPress={this.roomPress.bind(this, room.id)}>
+            <TouchableHighlight underlayColor="#7C4DFF" key={room.id} onPress={this.roomPress.bind(this, room.id)}>
               <View style={styles.room}>
                 <View style={styles.roomInfo}>
                   <Text style={styles.roomName}>{room.name}</Text>
@@ -66,9 +59,9 @@ export default class Lobby extends React.Component {
                           "https://www.tuktukdesign.com/wp-content/uploads/2020/01/people-icon-vector.jpg",
                       }}
                     />
-                    <Text style={styles.occupancy}>
-                      {room.occupants}/{room.capacity}
-                    </Text>
+                    {/* <Text style={styles.occupancy}> */}
+                    {/*   {room.occupants}/{room.capacity} */}
+                    {/* </Text> */}
                   </View>
                   <Text style={styles.join}>Join</Text>
                 </View>
@@ -79,7 +72,7 @@ export default class Lobby extends React.Component {
         <Text style={styles.header}>Chats</Text>
         <ScrollView>
           {this.state.friends.map((friend) => (
-            <TouchableHighlight style={styles.friends} underlayColor = "#d8c7ff" onPress={this.roomPress.bind(this, friend.key)}>
+            <TouchableHighlight key={friend.name} style={styles.friends} underlayColor="#d8c7ff" onPress={this.roomPress.bind(this, friend.key)}>
               <View style={styles.friend}>
                 <Text style={styles.friendName}>{friend.name}</Text>
                 <View style={{ flexDirection: "row" }}>
