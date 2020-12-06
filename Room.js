@@ -22,6 +22,10 @@ const color = 0x0000ff;
 const width = 5;
 const alpha = 0.5;
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export default class Room extends React.Component {
   state = {
     // room info:
@@ -58,6 +62,20 @@ export default class Room extends React.Component {
         type: "image",
         uri: "",
       },
+      {
+        id: 3,
+        sender: "Vedant",
+        deviceId: "Vedant's phone",
+        type: "text",
+        text: "nice cat!"
+      },
+      {
+        id: 4,
+        sender: "Saketh",
+        deviceId: "Saketh's phone",
+        type: "text",
+        text: "^^^"
+      }
     ],
   };
 
@@ -74,11 +92,13 @@ export default class Room extends React.Component {
     const uri = await takeSnapshotAsync(this.sketch, options);
     this.setState({ uri: uri });
   };
+
   // When text is changed, update state:
   onChangeText = (text) => {
     this.setState({ text: text });
   };
-  // on submission of input, update messages list:
+
+  // n submission of input, update messages list:
   onSubmit = () => {
     // If submitting sketch:
     if (this.state.type == "sketch") {
@@ -113,8 +133,14 @@ export default class Room extends React.Component {
         this.setState({ messages: updatedMessages });
         this.setState({ text: "" });
       }
-    }
+    }    
   };
+
+  onErase = () => {
+    this.setState({type:"text"});
+    sleep(1).then(() => { this.setState({type:"sketch"}); });
+    ;
+  }
 
   // Switch from text to sketch or vice versa:
   switch = () => {
@@ -159,7 +185,7 @@ export default class Room extends React.Component {
         </View>
         {/* Input section: */}
         <View style={styles.input}>
-          {/* Display sketch component: */}
+          {/* Sketch component: */}
           {this.state.type == "sketch" && (
             <View
               style={{
@@ -168,7 +194,6 @@ export default class Room extends React.Component {
                 justifyContent: "center",
               }}
             >
-              (
                 <ExpoPixi.Sketch
                   style={styles.sketchInput}
                   strokeColor={color}
@@ -181,13 +206,16 @@ export default class Room extends React.Component {
           )}
           {/* Display text input: */}
           <View style={styles.inputWrapper}>
-            <TouchableHighlight style={styles.switch} onPress={this.switch}>
+            {/* Switch contexts (text vs sketch): */}
+            <TouchableHighlight style={styles.switch} onPress={this.switch} 
+              underlayColor="#fff">
               {this.state.type == "sketch" ? (
                 <Text>Aa</Text>
               ) : (
                 <Image style = {styles.switch} source={{ uri: "https://cdn.iconscout.com/icon/free/png-256/pen-1994819-1699863.png" }}></Image>
               )}
             </TouchableHighlight>
+            {/* Text input: */}
             {this.state.type == "text" && (
               <TextInput
                 style={styles.textInput}
@@ -198,6 +226,22 @@ export default class Room extends React.Component {
                 value={this.state.text}
               />
             )}
+            {/* erase button: */}
+            {this.state.type == "sketch" && (
+              <TouchableHighlight
+              onPress= {this.onErase}
+              underlayColor="#fff"
+            >
+              <Image
+                style={styles.erase}
+                source={{
+                  uri:
+                    "https://cdn2.iconfinder.com/data/icons/business-1-58/48/69-512.png",
+                }}
+              ></Image>
+            </TouchableHighlight>
+            )}
+            {/* Send button: */}
             <TouchableHighlight
               style={styles.submit}
               onPress={this.onSubmit}
@@ -276,4 +320,8 @@ const styles = StyleSheet.create({
     height: 25,
     width: 25,
   },
+  erase: {
+    height: 20,
+    width: 20,
+  }
 });

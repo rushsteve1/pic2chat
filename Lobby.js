@@ -5,21 +5,32 @@ import {
   View,
   TouchableHighlight,
   Image,
+  ScrollView,
 } from "react-native";
 // import r from 'rethinkdb';
+
 
 export default class Lobby extends React.Component {
   state = {
     rooms: [
       { id: 1, name: "Rory's room", occupants: 4, capacity: 10 },
-      { id: 2, name: "Steven's room", occupants: 5, capacity: 10 },
+      { id: 2, name: "Steven's room", occupants: 3, capacity: 5 },
+      { id: 3, name: "Evan's room", occupants: 9, capacity: 10 },
+      { id: 4, name: "Saketh's room", occupants: 10, capacity: 20 },
+      { id: 5, name: "Vedant's room", occupants: 3, capacity: 6 },
     ],
     friends: [
-      { name: "Rory", lastonline: 4, online: true },
-      { name: "Steven", lastonline: 5, online: false },
-      { name: "Saketh", lastonline: 13, online: false },
-      { name: "Evan", lastonline: 5, online: false },
-      { name: "Vedant", lastonline: 5, online: false },
+      { name: "Vedant", lastonline: 1, online: true },
+      { name: "Steven", lastonline: 7, online: true },
+      { name: "Saketh", lastonline: 8, online: true },
+      { name: "Evan", lastonline: 13, online: true },
+      { name: "Mike", lastonline: 14, online: false },
+      { name: "Will", lastonline: 15, online: false },
+      { name: "Dustin", lastonline: 16, online: false },
+      { name: "El", lastonline: 20, online: false },
+      { name: "David", lastonline: 21, online: false },
+      { name: "Joyce", lastonline: 24, online: false },
+      { name: "Steve", lastonline: 48, online: false },
     ],
   };
 
@@ -30,6 +41,7 @@ export default class Lobby extends React.Component {
 
   roomPress = (roomId) => {
     console.log(roomId + " was pressed.");
+    this.props.navigation.navigate('Room', {})
   };
 
   render() {
@@ -37,9 +49,9 @@ export default class Lobby extends React.Component {
       <View style={styles.container}>
         <Text style = {{textAlign: "center",fontSize:20}}>Pic2Chat</Text>
         <Text style={styles.header}>Chats near you</Text>
-        <View style={styles.rooms}>
+        <ScrollView style={styles.rooms}>
           {this.state.rooms.map((room) => (
-            <TouchableHighlight underlayColor = "#7C4DFF" onPress={this.roomPress.bind(this, room.id)}>
+            <TouchableHighlight underlayColor = "#7C4DFF" key = {room.id} onPress={this.roomPress.bind(this, room.id)}>
               <View style={styles.room}>
                 <View style={styles.roomInfo}>
                   <Text style={styles.roomName}>{room.name}</Text>
@@ -63,27 +75,30 @@ export default class Lobby extends React.Component {
               </View>
             </TouchableHighlight>
           ))}
-        </View>
+        </ScrollView>
         <Text style={styles.header}>Chats</Text>
-        <View >
+        <ScrollView>
           {this.state.friends.map((friend) => (
             <TouchableHighlight style={styles.friends} underlayColor = "#d8c7ff" onPress={this.roomPress.bind(this, friend.key)}>
               <View style={styles.friend}>
                 <Text style={styles.friendName}>{friend.name}</Text>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.lastonline}>{friend.lastonline}hr</Text>
+                  {friend.online === false && <Text style={styles.lastonline}>{friend.lastonline}hr</Text>}
                   {friend.online && <View style={styles.circle}></View>}
                 </View>
               </View>
             </TouchableHighlight>
           ))}
-        </View>
+        </ScrollView>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  rooms: {
+    height: 200
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",

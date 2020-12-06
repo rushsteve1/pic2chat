@@ -19,7 +19,8 @@ export default function App() {
       <ConnectionContext.Provider >
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Lobby">
-            <Stack.Screen name="Room" component={Room}/>
+            <Stack.Screen name= "Lobby" component={Lobby}/>
+            <Stack.Screen name = "Room" component = {Room}/>
           </Stack.Navigator>
         </NavigationContainer>
         <StatusBar style="auto"/>
