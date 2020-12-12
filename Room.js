@@ -9,7 +9,6 @@ import {
   TextInput,
   Image,
 } from "react-native";
-import nextId from "react-id-generator";
 
 // sketch-related imports:
 import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
@@ -19,42 +18,45 @@ import Message from "./Message.js";
 import Picture from "./Picture.js";
 import { supabase } from "./App.js";
 import Constants from 'expo-constants';
-
 // values for sketch component:
 const color = 0x0000ff;
 const width = 5;
 const alpha = 0.5;
-
+// Sleep function, pauses for <ms> miliseconds
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// The room component is what is displayed when a user clicks on a
+// room or a direct message. It displays all messages that correspond
+// to the given room and allows the user to send messages:
 export default class Room extends React.Component {
   state = {
     // room info:
     name: "Rory's room",
-
     // input types/data
     type: "text",
     uri: "",
     text: "",
     sketchMounted: true,
-
     // array of messages
     messages: [],
   };
 
+  // When the image is changed, update the state with the most recent
+  // uri:
   onChangeImage = async ({ width, height }) => {
     // Setting up options for sketch component:
     const options = {
-      format: "png", /// PNG because the view has a clear background
-      quality: 0.1, /// Low quality works because it's just a line
-      result: "base64",
+      format: "png", // PNG because the view has a clear background
+      quality: 0.1, // Low quality works because it's just a line
+      result: "base64", // Images are stored in base64
       height: height,
       width: width,
     };
-    /// Using 'Expo.takeSnapShotAsync', and our view 'this.sketch' we can get a uri of the image
+    // Using 'Expo.takeSnapShotAsync', and our view 'this.sketch' we can get a uri of the image
     const uri = await takeSnapshotAsync(this.sketch, options);
+    // update state:
     this.setState({ uri });
   }
 
@@ -63,52 +65,51 @@ export default class Room extends React.Component {
     this.setState({ text: text });
   }
 
-  // n submission of input, update messages list:
+  // On submission of input, update messages list:
   onSubmit = async () => {
     let newMsg = {
       room_id: this.props.route.params.id,
       sent_by: Constants.installationId,
       type: this.state.type,
     };
-
+    // submitting sketch, send uri:
     if (this.state.type === 'sketch') {
       newMsg.image_uri = this.state.uri;
     } else {
+      // otherwise, send text:
       newMsg.text = this.state.text;
     }
-
+    // Insert into database:
     await supabase
       .from('messages')
       .insert(newMsg);
-
+    // reset uri and text state:
     this.setState({ text: "", uri: "" });
   }
-
+  // To erase sketch, unmount and remount the sketch component:
   onErase = () => {
     this.setState({type:"text"});
     sleep(1).then(() => { this.setState({type:"sketch"}); });
   }
-
   // Switch from text to sketch or vice versa:
   switch = () => {
     this.setState({ type: (this.state.type == "text") ? "sketch" : "text" });
   }
-
+  // When component loads, fetch data from database:
   async componentDidMount() {
     console.log(Constants.installationId);
-
+    // Fetch room data:
     var { data } = await supabase.from('rooms').select('name').eq('id', this.props.route.params.id).single();
     this.setState({ name: data.name });
-
+    // Fetch messages:
     var { data } = await supabase.from('messages').select().eq('room_id', this.props.route.params.id).order('time');
     this.setState({ messages: data });
-
+    // Subscribe to messages to keep messages constantly updated:
     supabase
       .from('messages:room_id=eq.' + this.props.route.params.id)
       .on('INSERT', (evt) => this.setState({ messages: [...this.state.messages, evt.new]}))
       .subscribe()
   }
-
   render() {
     return (
       <View style={styles.container}>
@@ -121,12 +122,14 @@ export default class Room extends React.Component {
           <ScrollView>
             {this.state.messages.map((message) =>
               message.type == "text" ? (
+                // Render message component if message is text:
                 <Message
                   key={message.id}
                   id={Constants.installationId}
                   message={message}
                 />
               ) : (
+                // Otherwise, render image component:
                 <Picture
                   key={message.id}
                   id={Constants.installationId}
@@ -140,17 +143,17 @@ export default class Room extends React.Component {
 
         {/* Input section: */}
         <View style={[styles.input, {maxHeight: (this.state.type === "text") ? 50 : 180}]}>
-          {/* Sketch component: */}
           {/* Switch contexts (text vs sketch): */}
           <TouchableHighlight style={styles.switch} onPress={this.switch}
             underlayColor="#fff">
             {this.state.type == "sketch" ? (
+              // Switch to text button:
               <Text>Aa</Text>
             ) : (
+              // Switch to drawing button:
               <Image style = {styles.switch} source={{ uri: "https://cdn.iconscout.com/icon/free/png-256/pen-1994819-1699863.png" }}></Image>
             )}
           </TouchableHighlight>
-
           {/* Text input: */}
           {this.state.type == "text" && (
             <TextInput
@@ -162,7 +165,7 @@ export default class Room extends React.Component {
               value={this.state.text}
             />
           )}
-
+          {/* Sketch input: */}
           {this.state.type == "sketch" && (
             <View
               style={{
@@ -171,17 +174,17 @@ export default class Room extends React.Component {
                 justifyContent: "center",
               }}
             >
-                <ExpoPixi.Sketch
-                  style={styles.sketchInput}
-                  strokeColor={color}
-                  strokeWidth={width}
-                  strokeAlpha={alpha}
-                  ref={(ref) => (this.sketch = ref)}
-                  onChange={this.onChangeImage}
-                />
+              {/* Sketch component: */}
+              <ExpoPixi.Sketch
+                style={styles.sketchInput}
+                strokeColor={color}
+                strokeWidth={width}
+                strokeAlpha={alpha}
+                ref={(ref) => (this.sketch = ref)}
+                onChange={this.onChangeImage}
+              />
             </View>
           )}
-
           {/* erase button: */}
           {this.state.type == "sketch" && (
             <TouchableHighlight
@@ -190,10 +193,7 @@ export default class Room extends React.Component {
           >
             <Image
               style={styles.erase}
-              source={{
-                uri:
-                  "https://cdn2.iconfinder.com/data/icons/business-1-58/48/69-512.png",
-              }}
+              source={{uri:  "https://cdn2.iconfinder.com/data/icons/business-1-58/48/69-512.png",}}
             ></Image>
           </TouchableHighlight>
           )}
@@ -205,10 +205,7 @@ export default class Room extends React.Component {
           >
             <Image
               style={styles.submit}
-              source={{
-                uri:
-                  "https://cdn2.iconfinder.com/data/icons/dark-action-bar-2/96/send-512.png",
-              }}
+              source={{ uri:"https://cdn2.iconfinder.com/data/icons/dark-action-bar-2/96/send-512.png",}}
             ></Image>
           </TouchableHighlight>
         </View>
@@ -218,6 +215,7 @@ export default class Room extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  // general styles:
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -233,6 +231,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     flexGrow: 1,
   },
+  // input section styles:
   sketchInput: {
     height: 140,
     width: 300,
@@ -255,6 +254,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: Dimensions.get("window").width,
   },
+  // button styles:
   switch: {
     height: 20,
     width: 20,

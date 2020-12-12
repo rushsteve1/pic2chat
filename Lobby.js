@@ -9,9 +9,14 @@ import {
 } from "react-native";
 import { supabase } from "./App.js";
 
+// The Lobby component is what the user first sees when they open
+// Pic2Chat. It displays all joinable rooms and direct messages
+// with friends.
 export default class Lobby extends React.Component {
   state = {
     rooms: [],
+    // Friends have an id attribute, name, when they were last online
+    // and whether or not they are currently online:
     friends: [
       { id: 1, name: "Vedant", lastonline: 1, online: true },
       { id: 1, name: "Steven", lastonline: 7, online: true },
@@ -27,25 +32,31 @@ export default class Lobby extends React.Component {
     ],
   };
 
+  // When a room button is pressed, we console.log a debug message
+  // and navigate to the room that corresponds to the button that
+  // was pressed:
   roomPress = (roomId) => {
     console.log(roomId + " was pressed.");
     this.props.navigation.navigate('Room', {id: roomId})
   };
 
+  // When this component loads, we fetch the general room data
+  // from the supabase database:
   async componentDidMount() {
     var { data } = await supabase.from('rooms').select();
     this.setState({ rooms: data });
   }
-
   render() {
     return (
       <View style={styles.container}>
         <Text style = {{textAlign: "center",fontSize:20}}>Pic2Chat</Text>
         <Text style={styles.header}>Chats near you</Text>
+        {/* Scrollable view of the difference rooms the user can select from: */}
         <ScrollView style={styles.rooms}>
           {this.state.rooms.map((room) => (
             <TouchableHighlight underlayColor="#7C4DFF" key={room.id} onPress={this.roomPress.bind(this, room.id)}>
               <View style={styles.room}>
+                {/* When a room is pressed, navigate to that room: */}
                 <View style={styles.roomInfo}>
                   <Text style={styles.roomName}>{room.name}</Text>
                   <View
@@ -54,14 +65,8 @@ export default class Lobby extends React.Component {
                   >
                     <Image
                       style={styles.image}
-                      source={{
-                        uri:
-                          "https://www.tuktukdesign.com/wp-content/uploads/2020/01/people-icon-vector.jpg",
-                      }}
+                      source={{ uri: "https://www.tuktukdesign.com/wp-content/uploads/2020/01/people-icon-vector.jpg",}}
                     />
-                    {/* <Text style={styles.occupancy}> */}
-                    {/*   {room.occupants}/{room.capacity} */}
-                    {/* </Text> */}
                   </View>
                   <Text style={styles.join}>Join</Text>
                 </View>
@@ -70,9 +75,11 @@ export default class Lobby extends React.Component {
           ))}
         </ScrollView>
         <Text style={styles.header}>Friends</Text>
+        {/* Scrollable View of the user's direct message chats with friends: */}
         <ScrollView>
           {this.state.friends.map((friend) => (
             <TouchableHighlight key={friend.name} style={styles.friends} underlayColor="#d8c7ff" onPress={this.roomPress.bind(this, friend.key)}>
+              {/* When a direct message is pressed, navigate to the chat: */}
               <View style={styles.friend}>
                 <Text style={styles.friendName}>{friend.name}</Text>
                 <View style={{ flexDirection: "row" }}>
@@ -89,6 +96,7 @@ export default class Lobby extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  // General styling:
   rooms: {
     height: 200
   },
@@ -105,6 +113,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
+  // Room styling:
   room: {
     height: 70,
     marginBottom: 10,
@@ -136,6 +145,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     fontSize: 15,
   },
+  // Friend styling:
   friends: {
     paddingLeft: 20,
     paddingRight: 25,

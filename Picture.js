@@ -6,6 +6,14 @@ import {
   Image,
 } from "react-native";
 
+// The Picture component renders a picture to be displayed in the chat room:
+// Usage:
+{/* <Picture
+    key= "random_id"
+    id= "Rory's id"
+    message= message_object
+    uri={message.image_uri}
+    /> */}
 export default class Picture extends React.Component {
   constructor() {
     super();
@@ -13,12 +21,14 @@ export default class Picture extends React.Component {
   render() {
     return (
       <View style={styles.container}>
+        {/* If message sent by other user, render on left side of screen: */}
         {this.props.message.sent_by != this.props.id ? (
           <View style={styles.sentPicture}>
             <Text style={styles.senderTag}>{this.props.message.sender}</Text>
             <Image style = {styles.image} source = {{uri: `data:image/png;base64,${this.props.uri}`,}}></Image>
           </View>
         ) : (
+          // Otherwise, render on right side of screen:
           <View style={styles.myPicture}>
             <Text style={styles.meTag}>you</Text>
             <Image style = {styles.image} source = {{uri: `data:image/png;base64,${this.props.uri}`,}}></Image>
@@ -30,6 +40,7 @@ export default class Picture extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  // General styles:
   container: {
     backgroundColor: "#fff",
     marginBottom: 5,
@@ -41,6 +52,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
   },
+  // Tags to identify who sent message:
   senderTag: {
     position: "absolute",
     backgroundColor: "#C4C4C4",
@@ -64,6 +76,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 5,
     zIndex: 1,
   },
+  // Styles for the message itself::
   sentPicture: {
     height: 150,
     width: 300,
@@ -79,6 +92,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: "#7C4DFF",
   },
+  // styles for the image
   image : {
     height: 148,
     width: 298,
